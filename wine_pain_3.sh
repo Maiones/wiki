@@ -23,7 +23,7 @@ if [ ${dir1} -le 22 ]; then
 	echo "$ip changed dir"
 else
 	echo
-fi	
+fi
 
 rpm -ev libwine libwine-gl wine wine-cpcsp_proxy; env -i salt-call state.apply
 

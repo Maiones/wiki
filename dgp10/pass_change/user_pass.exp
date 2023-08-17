@@ -1,0 +1,37 @@
+#!/usr/bin/expect -f
+
+# Переменные с паролями и пользователем
+set adminPassword "admin"
+set newPasswordPrefix "user"
+
+# Получение списка пользователей
+set userList [exec cut -d: -f1 /etc/passwd]
+
+# Разбивка списка пользователей по строкам
+set userList [split $userList "\n"]
+
+# Обход списка пользователей
+for {set i 0} {$i < [llength $userList]} {incr i} {
+    # Получение текущего пользователя
+    set user [lindex $userList $i]
+    
+    # Исключение пустых строк и системных пользователей
+    if {[string length $user] > 0 && $user != "root" && $user != "nobody" && $user != "syslog"} {
+        # Формирование нового пароля
+        set newPassword "$newPasswordPrefix[expr $i + 1]"
+
+        # Смена пароля для текущего пользователя
+        spawn su -
+        expect "Password:"
+        send -- "$adminPassword\r"
+        expect "#"
+        send -- "passwd $user\r"
+        expect "Enter new password:"
+        send -- "$newPassword\r"
+        expect "Retype new password:"
+        send -- "$newPassword\r"
+        expect "#"
+        send -- "exit\r"
+        expect eof
+    }
+}

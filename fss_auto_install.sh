@@ -98,15 +98,23 @@ read inputval3
 
 
 ####Добавить бекап локальной бд!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+######Добавить проверку пустой бд!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+check_bd1=$(ls /home/$user1/Загрузки/backup_enl_null.sql | wc -c)
+check_bd2=$(/home/$user1/Загрузки/backup_ers_empty.sql | wc -c)
 
 if test "$inputval3" != "eln"
 then
-	
-#	wget https://github.com/Maiones/wiki/blob/master/database/backup_enl_null.sql
-	psql -p 5433 -U postgres -d "fss" -f /home/$user1/Загрузки/backup_enl_null.sql
-	psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";" 
+	#	wget https://github.com/Maiones/wiki/blob/master/database/backup_enl_null.sql
+if 	[ ${check_bd1} -eq 0 ]; then
+		echo -en "$color1b В папке /home/$user1/Загрузки/ нет базовой БД. $color1e"
+fi
+		psql -p 5433 -U postgres -d "fss" -f /home/$user1/Загрузки/backup_enl_null.sql
+		psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";" 
 
 elif test "$inputval3" == "ers"
+if 	[ ${check_bd2} -eq 0 ]; then
+		echo -en "$color1b В папке /home/$user1/Загрузки/ нет базовой БД. $color1e"
+fi
 	then
 #		wget https://github.com/Maiones/wiki/blob/master/database/backup_ers_empty.sql
 		psql -p 5433 -U postgres -d "fss" -f /home/$user1/Загрузки/backup_ers_empty.sql
@@ -115,6 +123,9 @@ elif test "$inputval3" == "ers"
 fi
 fi
 
+##################################################
+Не учитывает wine 4.9 косяк
+_________\/_________\/_______________
 ##################################################
 
 cat << '_EOF_' >  /usr/bin/run_fss.sh
@@ -203,7 +214,4 @@ fi
 echo 
 echo "ФСС Установлено!"
 echo -e $final1
-
-
-
 
