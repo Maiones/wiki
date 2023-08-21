@@ -42,11 +42,11 @@ for printer in "${printer_del[@]}"; do
 	lpadmin -x "$printer"
 done
 
-#Продвинутый поиск принтера
+#Продвинутый косячный поиск принтера
 printer=$(lpinfo -v | grep -i "direct usb"| grep -i canon | grep -i LBP)
 if [ -n "$printer" ]; then
-    printer_usb=$(echo $printer | cut -d "/" -f3)
-    printer_model=$(echo $printer | cut -d "/" -f4)
+    printer_usb=$(echo $printer | sed -n "s/^.*usb:\/\/\([^?]*\).*$/\1/p" | cut -d '/' -f1)
+    printer_model=$(echo $printer | sed -n "s/^.*usb:\/\/\([^?]*\).*$/\1/p" | sed -n "s/.*\///p" | cut -d '%' -f1)
     if [ $printer_model == LBP6030 ]; then
     	printer_model=LBP6000
     fi
@@ -68,7 +68,7 @@ else
 	exit 1
 fi
 
-#Регистрация принтера в демоне ccpd
+#Регистрация принтера в демоне ccpd (на тк по умолчанию modprobe)
 ccpdadmin -p $printer_name -o /dev/usb/lp0
 
 cd /etc/init.d/
