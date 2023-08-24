@@ -1,6 +1,8 @@
 #!/bin/bash
 LANG=C
 
+exec 2> /dev/null
+
 user1=$(who | grep '(:0)' | cut -d " " -f1)
 dir1=$(ls /home/$user1/.wine/drive_c/users/$user1/| wc -l)
 
@@ -20,6 +22,40 @@ fi
 
 #Проверка битых пакетов
 ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinstall
+
+# Проверяем бутылку и версию wine 
+result_message2=""
+check8=$(wine --version | cut -d " " -f1)
+check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+wine --version | cut -d " " -f1
+
+
+########Проверяем бутылку
+if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
+	echo
+	if [ -e "$check9" ]; then 
+	echo
+	else
+		cd /root/etersoft-repo/
+	   wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
+    	cd /etc/skel/
+		rm -rf .wine
+		tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+		result_message2=$(wine --version); Не было wine_bottle_8.0.6 - поставил. 
+	fi
+	else
+		result_message2="$(wine --version)"
+fi
+
+#АААААА засрал лог в телеге!
+#Если вдруг бутылки нет, мы её выше проверили и теперь из скелетона добавим
+wine_bottle=$(/home/$user1/.wine/drive_c/Vitacore)
+if [ -d $wine_bottle ]; then
+	echo
+else
+	su - "$user1" -c "cp -r /etc/skel/.wine ."
+fi
+
 
 #Проверка фсс-aids-spectator приблуд?
 check2=/home/$user1/.wine/drive_c/AIDSNET59
@@ -73,45 +109,6 @@ fi
 
 #Правильный запуск
 sed -i "5c\Exec=/usr/bin/run_vita.sh" /etc/skel/Рабочий\ стол/as_rmiac.desktop
-
-
-# Проверяем бутылку и версию wine 
-result_message2=""
-#check8=/etc/skel/.wine/wrapper.cfg
-check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
-#check10=/usr/bin/import_certs.sh
-
-
-########Проверяем бутылку
-if [ "$wine" == "wine-etersoft-8.0.5-alt0.M80P.1" ]; then
-	if [ test -e "$check9" ]; then 
-	echo
-	else
-		cd /root/etersoft-repo/
-	   wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
-    	cd /etc/skel/
-		rm -rf .wine
-		tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
-		result_message2="$(wine --version); Не было wine_bottle_8.0.6 - поставил." 
-	fi
-	else
-	  result_message2=$(wine --version)
-fi
-#if grep -q "wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1" "$check10"; then
-#   sed -i 's|wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1|wine /usr/lib/wine/cpcsp_proxy_setup.exe.so one1 two1|g' "$check10"
-#else
-#   echo
-#fi
-
-#   if test -e "$check8"; then
-#			echo
-#   else
-#     if test -e "$check9"; then
-#	   echo
-#else
-	
-#	  fi
-#	fi
 
 #Обновляемся из salt
 salt1=$(systemctl is-active salt-minion >/dev/null 2>&1 && echo YES || echo NO)
