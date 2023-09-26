@@ -37,7 +37,7 @@ if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
 	echo
 	else
 		cd /root/etersoft-repo/
-	   wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
+	   wget -nv --no-cache http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
     	cd /etc/skel/
 		rm -rf .wine
 		tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
@@ -110,7 +110,8 @@ fi
 #Правильный запуск
 sed -i "5c\Exec=/usr/bin/run_vita.sh" /etc/skel/Рабочий\ стол/as_rmiac.desktop
 
-#Обновляемся из salt
+#Обновляемся из salt 
+####Вывести проверку доступности
 salt1=$(systemctl is-active salt-minion >/dev/null 2>&1 && echo YES || echo NO)
 
 if [ $salt1 == NO ]; then

@@ -19,5 +19,4 @@ rm -f ./kernel-*un-def*.rpm ./*virtualbox-*6.1.36*.rpm ./8821cu.ko_5.18.14_c8.ta
 
 wget -nv --no-cache http://10.11.128.115/.pcstuff/zastava/rootca-gost2012.cer
 wget -nv --no-cache http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/ZASTAVAclient-6.80.23213-fsb-5.18.14-un-def-alt1-x86_64.rpm && apt-get -y install ./ZASTAVAclient-6.80.23213-fsb-5.18.14-un-def-alt1-x86_64.rpm; rm -f ./ZASTAVAclient-6.80.23213-fsb-5.18.14-un-def-alt1-x86_64.rpm
-# onlyif:
-    #  - buildtime=$(rpm -qf --qf='[%{buildtime}\n]' /boot/vmlinuz-5.18.14-un-def-alt1); kernel=$(uname -r); installed=$(rpm -q ZASTAVAclient); [ "$buildtime" = "1678353940" -a "$kernel" = "5.18.14-un-def-alt1" -a "$installed" = "" ]
+

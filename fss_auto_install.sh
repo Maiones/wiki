@@ -21,7 +21,7 @@ echo -e "Установка АРМ ФСС. Для установки необх�
 echo -en "$color2b Введите 'yes' для продолжения: $color2e"
 read inputval
 if test "$inputval" != "yes"
-then
+	then
 	echo -en "$color1b Установка отменена :с $color1e"
 	exit 1
 fi
@@ -93,39 +93,38 @@ psql -p 5433 -U postgres -c "CREATE DATABASE fss WITH ENCODING='UTF-8';"
 
 #####Пустая бд пострегреса.
 cd /tmp/
-echo -en "$color2b Бд создается для ЭЛН(eln) или ЭРС(ers)? $color2e"
+echo -en "$color2b Бд создается для ЭЛН(eln) или ЭРС(ers)?$color2e"
 read inputval3
 
-
 ####Добавить бекап локальной бд!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-######Добавить проверку пустой бд!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-check_bd1=$(ls /home/$user1/Загрузки/backup_enl_null.sql | wc -c)
-check_bd2=$(/home/$user1/Загрузки/backup_ers_empty.sql | wc -c)
 
 if test "$inputval3" != "eln"
 then
-	#	wget https://github.com/Maiones/wiki/blob/master/database/backup_enl_null.sql
-if 	[ ${check_bd1} -eq 0 ]; then
-		echo -en "$color1b В папке /home/$user1/Загрузки/ нет базовой БД. $color1e"
-fi
-		psql -p 5433 -U postgres -d "fss" -f /home/$user1/Загрузки/backup_enl_null.sql
+		cd /tmp/; wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_enl_null.sql	
+		psql -p 5433 -U postgres -d "fss" -f /tmp/backup_enl_null.sql
 		psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";" 
 
 elif test "$inputval3" == "ers"
-if 	[ ${check_bd2} -eq 0 ]; then
-		echo -en "$color1b В папке /home/$user1/Загрузки/ нет базовой БД. $color1e"
-fi
 	then
-#		wget https://github.com/Maiones/wiki/blob/master/database/backup_ers_empty.sql
-		psql -p 5433 -U postgres -d "fss" -f /home/$user1/Загрузки/backup_ers_empty.sql
+		cd /tmp/; wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_ers_empty.sql	
+		psql -p 5433 -U postgres -d "fss" -f /tmp/backup_ers_empty.sql
 		psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";"
 
+echo -en "$color2b Если нужна была только БД, то можно прервать установку, прерываем? $color2e"
+echo -n " 'cancel' для отмены установки или 'go' для продолжения:"
+read inputvalBD
+if test "$inputvalBD" == "cancel" 
+then
+	exit 1
+elif test "$inputvalBD" == "yes"
+	then
+	echo
+fi
 fi
 fi
 
 ##################################################
-Не учитывает wine 4.9 косяк
-_________\/_________\/_______________
+#Не учитывает wine 4.9 косяк
 ##################################################
 
 cat << '_EOF_' >  /usr/bin/run_fss.sh
@@ -147,7 +146,7 @@ Version=1.0
 Type=Application
 Name=АРМ ЛПУ
 Exec=/usr/bin/run_fss.sh
-Icon=F53C_fss_mo.0
+Icon=FEAB_fss_mo.0
 StartupNotify=true
 Path=/usr/bin/
 _EOF_
@@ -165,10 +164,12 @@ wine --version | head -n1  | awk '{print $1;}'
 
 
 if [[ ${check5} == ${check6} ]]; then
+##Добавить установку из wine со skel, вместо чистой установки \\ беда с dotnet40?????
+#cp -r /etc/skel/.wine .wine.fss
 
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
+	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority cp -r /etc/skel/.wine .wine.fss"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so"
 	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/i386-unix/cpcsp_proxy.dll.so cpcsp_proxy.dll.so && ln -svf /usr/lib/wine/i386-unix/cpcsp_proxy.dll.so cpcsp_proxy.dll"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
@@ -179,7 +180,7 @@ else
 	###/home/user/.wine/drive_c/windows/system32/
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
+	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority cp -r /etc/skel/.wine .wine.fss"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/cpcsp_proxy_setup.exe.so"
 	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/cpcsp_proxy.dll.so cpcsp_proxy.dll.so && ln -svf /usr/lib/wine/cpcsp_proxy.dll.so cpcsp_proxy.dll"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
@@ -189,7 +190,7 @@ else
 fi
 
 ##########################################################
-
+#ступил тут  (не было папки .wine и не только и самого wine, выходит не ступил?)!!! написать проверку установлен ли wine и winetricks
 echo -en "$color2b Указываем какую программу необходимо установить (выбрав цифру, если их нет, то 1 )  $color2e"
 select1=$(find /home/*/Загрузки/fss_e*.exe)
 select prog in ${select1}
