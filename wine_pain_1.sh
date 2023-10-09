@@ -1,18 +1,19 @@
 #!/bin/bash
 LANG=C
 
-export pluscolor=$(tput setab 14)
+export pluscolor=$(tput setab 8)
 export nocolor=$(tput sgr 0)
 
 echo -n "IP мед пк: "
 read inputval
 
 read -p $pluscolor"Удалить префикс wine и починить все что можно 'pupa'
-Тис-Гис запуск (1410) 'mtu'
 Удалить пакет wine 'lupa'
+Тис-Гис запуск (1410) 'mtu'
 Ядро 5.18.14 'oreh'
 Canon_lbp (lin PC) 'conon'
 Принтер из ТИСа 'tis'
+#добавить тис переустановку
 Wine 4.9 не пашет word 'woo':"$nocolor decision1
 
 case "$decision1" in

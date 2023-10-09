@@ -23,6 +23,7 @@ mkfifo /var/ccpd/fifo0
 chmod -R 777 /var/ccpd
 
 #Удаляем все установленные принтеры(иначе засрётся FIFO path):
+#TODO ccpdadmin -x
 printer_del=$(lpstat -v | cut -d " " -f3 | sed 's/:$//')
 lpadmin -x $printer_del
 for printer in "${printer_del[@]}"; do

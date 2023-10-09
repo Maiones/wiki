@@ -4,23 +4,25 @@ export pluscolor=$(tput setab 2)
 export nocolor=$(tput sgr 0)
 
 #hostname
-my_hostname = $(hostname | cut -d "." -f1)
+my_hostname=$(hostname | cut -d "." -f1)
 
 #ввести ip домена\ чек пинга?\ прерываем
 read -p "Введите IP-адрес домена: " inputval
-domen_ip = $inputval
+domen_ip=$inputval
 
 #ввести рабочую группу домена
 read -p "Введите рабочую группу домена: " inputval2
-domen_work = $inputval2
+domen_work=$inputval2
 
 #ввести имя домена
-read -p "Введите рабочую группу домена: " inputval3
-my_domen = $inputval3
+read -p "Имя домена: " inputval3
+my_domen=$inputval3
 
 #Добавляем в hosts\ добавить проверку если уже это есть
 echo -e "$domen_ip\t$my_domen" | tee -a /etc/hosts
 echo -e "127.0.0.1\t$my_hostname.$my_domen $my_hostname" | tee -a /etc/hosts
+#Перезапускаем службу, чтобы hosts определился
+systemctl restart network
 
 #Меняем меню входа
 sed -i 's/#greeter-show-manual-login=false/greeter-show-manual-login=true/g' /etc/lightdm/lightdm.conf
@@ -50,11 +52,11 @@ echo $pluscolor"Пароль и учетная запись администра
 
 #Логин
 read -p "Введите логин админа домена: " inputval4
-domen_admin = $inputval4
+domen_admin=$inputval4
 
 #пароль
 read -p "Введите пароль админа домена: " inputval5
-domen_pass = $inputval5
+domen_pass=$inputval5
 
 #/usr/sbin/system-auth write ad мой.домен имя_лин_пк рабочая_группа имя_пользователя пароль
 /usr/sbin/system-auth write ad $my_domen $my_hostname $domen_work $domen_admin $domen_pass

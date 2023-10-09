@@ -47,12 +47,9 @@ if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
 		result_message2="$(wine --version)"
 fi
 
-#АААААА засрал лог в телеге!
 #Если вдруг бутылки нет, мы её выше проверили и теперь из скелетона добавим
 wine_bottle=$(/home/$user1/.wine/drive_c/Vitacore)
-if [ -d $wine_bottle ]; then
-	echo
-else
+if [ ! -d $wine_bottle ]; then
 	su - "$user1" -c "cp -r /etc/skel/.wine ."
 fi
 
@@ -64,7 +61,7 @@ check4=/home/$user1/.wine/drive_c/FssArmErs
 check5=/home/$user1/.wine/drive_c/FssTools
 check6=/home/$user1/.wine/drive_c/Radiant
 
-#Бекап бутылки
+#Бекап старой бутылки и переустановка её
 result_message1=""
 
 if [ -d $check2 ] || [ -d $check3 ] || [ -d $check4 ] || [ -d $check5 ] || [ -d $check6 ]; then
@@ -84,27 +81,21 @@ else
   su - "$user1" -c "wineserver -k; sleep 3; rm -rf .wine.bak; mv .wine .wine.bak; cp -r /etc/skel/.wine ."
 fi
 
-
-
 #Проверяем папку для .lnk файлов
 check7=/home/$user1/.wine/drive_c/users/'$user1'/Recent
 if [ -d "$check7" ]; then
 	su - '$user1' -c "mkdir /home/$user1/.wine/drive_c/users/'$user1'/Recent/"
 	su - '$user1' -c "mv *.lnk /tmp/"
-else
-	echo
 fi
 
 #'Удаляем' мусорные ссылки
 su - '$user1' -c "mv /home/$user1/*.lnk /tmp/"
-		
+
+#Проверка пользовательской папки user на необходимые для запуска ГИСа файлы		
 if [ ${dir1} -le 22 ]; then 
 	su - ${user1} -c "mkdir /home/'$user1'/.wine/drive_c/users/'$user1'"
 	yes | cp -r /etc/skel/.wine/drive_c/users/user/* /home/$user1/.wine/drive_c/users/$user1/
 	chown $user1:$user1 -R /home/$user1/.wine/drive_c/users/$user1
-	echo "$ip changed dir"
-else
-	echo
 fi	
 
 #Правильный запуск
@@ -116,14 +107,11 @@ salt1=$(systemctl is-active salt-minion >/dev/null 2>&1 && echo YES || echo NO)
 
 if [ $salt1 == NO ]; then
 	systemctl restart salt-minion
-	echo mimi $salt1
-elif [ $salt1 == YES ]; then
-	echo
+	echo $salt1
 fi
 
 #разрешение wine
 chmod +rwxr+xr+x /usr/bin/wine
-
 
 env -i salt-call state.apply | tail -n 7
 echo "$result_message1"

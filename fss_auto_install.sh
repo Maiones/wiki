@@ -124,8 +124,6 @@ fi
 fi
 
 ##################################################
-#Не учитывает wine 4.9 косяк
-##################################################
 
 cat << '_EOF_' >  /usr/bin/run_fss.sh
 #!/bin/bash
@@ -164,12 +162,12 @@ wine --version | head -n1  | awk '{print $1;}'
 
 
 if [[ ${check5} == ${check6} ]]; then
-##Добавить установку из wine со skel, вместо чистой установки \\ беда с dotnet40?????
+##не Добавить установку из wine со skel, вместо чистой установки \\ беда с dotnet40?????
 #cp -r /etc/skel/.wine .wine.fss
 
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority cp -r /etc/skel/.wine .wine.fss"
+	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so"
 	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/i386-unix/cpcsp_proxy.dll.so cpcsp_proxy.dll.so && ln -svf /usr/lib/wine/i386-unix/cpcsp_proxy.dll.so cpcsp_proxy.dll"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
@@ -180,7 +178,7 @@ else
 	###/home/user/.wine/drive_c/windows/system32/
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority cp -r /etc/skel/.wine .wine.fss"
+	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/cpcsp_proxy_setup.exe.so"
 	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/cpcsp_proxy.dll.so cpcsp_proxy.dll.so && ln -svf /usr/lib/wine/cpcsp_proxy.dll.so cpcsp_proxy.dll"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
@@ -192,8 +190,8 @@ fi
 ##########################################################
 #ступил тут  (не было папки .wine и не только и самого wine, выходит не ступил?)!!! написать проверку установлен ли wine и winetricks
 echo -en "$color2b Указываем какую программу необходимо установить (выбрав цифру, если их нет, то 1 )  $color2e"
-select1=$(find /home/*/Загрузки/fss_e*.exe)
-select prog in ${select1}
+select_install=$(find /home/*/Загрузки/fss_e*.exe)
+select prog in ${select_install}
 do	
 	break
 done
@@ -204,12 +202,16 @@ mv /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop /tmp/
 check3=$(ls 2>/dev/null /home/${user1}/.wine.fss/drive_c/FssTools| wc -c)
 check4=$(ls 2>/dev/null /home/${user1}/.wine.fss/drive_c/FssArmErs| wc -c)
 
+
+##еще чек на проверку скрипта в /usr/bin/run_fss.sh меняется в зависимости от установленного фсс
+
 if [ ${check3} -ne 0 ]; then
-su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssTools && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssTools && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
 fi
 
 if [ ${check4} -ne 0 ]; then
-su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssArmErs && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssArmErs && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+	sed -i 's/FssTools/FssArmErs/g' /usr/bin/run_fss.sh
 fi
 
 echo 
