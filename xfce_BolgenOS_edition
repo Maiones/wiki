@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SCRIPTS_DIR=$(dirname "$0")
+cd $HOME/.config/
+mv xfce4 xfce4.bak
+tar -xvf $SCRIPTS_DIR/xfce4-lg.tar.gz
+

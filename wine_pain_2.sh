@@ -60,14 +60,15 @@ check3=/home/$user1/.wine/drive_c/spectator
 check4=/home/$user1/.wine/drive_c/FssArmErs
 check5=/home/$user1/.wine/drive_c/FssTools
 check6=/home/$user1/.wine/drive_c/Radiant
+check_wsp=/home/$user1/.wine.special
 
 #Бекап старой бутылки и переустановка её
 result_message1=""
 
 if [ -d $check2 ] || [ -d $check3 ] || [ -d $check4 ] || [ -d $check5 ] || [ -d $check6 ]; then
-  if [ -d .wine.special ]; then
+  if [ -d $check_wsp ]; then
     i=1
-    while [ -d .wine.special$i ]; do
+    while [ -d $check_wsp$i ]; do
       i=$((i+1))
     done
     result_message1="n-копия чего-то там"

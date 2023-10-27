@@ -1,0 +1,4 @@
+#!/bin/bash
+mkdir -p /lib/modules/5.18.14-un-def-alt1/updates/
+cd /lib/modules/5.18.14-un-def-alt1/updates/ && tar xf /tmp/kernel_fix/8821cu.ko_5.18.14_c8.tar.gz
+cd /tmp/kernel_fix; LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8 apt-get -y install /boot/vmlinuz-5.18.14-un-def-alt1- ./kernel-*5.18.14*.rpm ./kernel-modules-virtualbox-un-def-6.1.36* && grub-set-default 'ALT 8 SP Workstation, 5.18.14-un-def-alt1'; apt-get -y install ./virtualbox-*6.1.36*.rpm ; apt-get -y remove virtualbox-guest-utils- virtualbox-guest-additions- $(rpm -qa --qf='[%{name}\n]'| grep ZASTAVAclient); systemctl enable virtualbox; rm -f ./kernel-*un-def*.rpm ./*virtualbox-*6.1.36*.rpm ./8821cu.ko_5.18.14_c8.tar.gz

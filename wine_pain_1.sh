@@ -7,12 +7,15 @@ export nocolor=$(tput sgr 0)
 echo -n "IP мед пк: "
 read inputval
 
+tis_gz=tis-service3.tar.gz
+
 read -p $pluscolor"Удалить префикс wine и починить все что можно 'pupa'
 Удалить пакет wine 'lupa'
-Тис-Гис запуск (1410) 'mtu'
+Тис-Гис запуск (1300) 'mtu'
+Тис переустановка 'ttis'
 Ядро 5.18.14 'oreh'
-Canon_lbp (lin PC) 'conon'
-Принтер из ТИСа 'tis'
+Canon_lbp 'conon'
+Принтер из ТИСа 'ptis'
 #добавить тис переустановку
 Wine 4.9 не пашет word 'woo':"$nocolor decision1
 
@@ -29,7 +32,11 @@ case "$decision1" in
    "mtu")
 		ssh -o "StrictHostKeyChecking=no" -i /home/user/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_7.sh
 		;;
-	"tis")
+   "ttis")
+		scp -o "StrictHostKeyChecking=no" -i /home/user/medkey -r /home/user/kva-kva/med_linux/tis/$tis_gz root@$inputval:/tmp/
+		ssh -o "StrictHostKeyChecking=no" -i /home/user/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_9.sh
+		;;		
+	"ptis")
 		ssh -o "StrictHostKeyChecking=no" -i /home/user/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_8.sh
 		;;
 	"conon")

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mkdir /tmp/kernel_fix
+cd /tmp/kernel_fix
+env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/kernel-image-un-def-5.18.14-alt1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/kernel-modules-drm-ancient-un-def-5.18.14-alt1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/kernel-modules-drm-nouveau-un-def-5.18.14-alt1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/kernel-modules-drm-un-def-5.18.14-alt1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/x86_64/kernel-modules-virtualbox-un-def-6.1.36-alt1.332302.1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/vbox/virtualbox-6.1.36-alt0.M80C.1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/vbox/virtualbox-common-6.1.36-alt0.M80C.1.x86_64.rpm http://10.11.128.115/.pcstuff/kernel/un-def-5.18.14-c8/8821cu.ko_5.18.14_c8.tar.gz
+echo "Ядро 5.18.14 загружено, теперь нужно папку /tmp/kernel_fix загрузить на флешку."

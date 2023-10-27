@@ -10,5 +10,6 @@ ike-scan -v -2 10.8.63.70 #Для ТИСа
 sleep 5
 systemctl start vpnclient
 
-echo -e "mtu 1300" > /etc/net/ifaces/$user_net/iplink
+ip link set mtu 1300 dev $user_net
+#echo -e "mtu 1300" > /etc/net/ifaces/$user_net/iplink
 systemctl restart network

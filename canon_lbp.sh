@@ -17,15 +17,26 @@ else
 	env -i apt-get install -y ./cndrvcups-capt-2.71-1.x86_64.rpm
 fi
 
+#Чистим старые конфиги, если есть:
+ccpdad_del=$(ccpdadmin | grep /dev/usb/lp0 | cut -d ":" -f2)
+
+if [ -d /var/ccpd/fifo0 ]; then
+	for printer in $ccpdad_del; do
+		ccpdadmin -x $printer
+	done
+	rm -rf /var/ccpd/
+	service ccpd stop
+fi
+
 #Настройка спулинга печати
 mkdir /var/ccpd
 mkfifo /var/ccpd/fifo0
 chmod -R 777 /var/ccpd
 
 #Удаляем все установленные принтеры(иначе засрётся FIFO path):
-#TODO ccpdadmin -x
+#TODO вернуть удаленные принтеры обратно???????????
 printer_del=$(lpstat -v | cut -d " " -f3 | sed 's/:$//')
-lpadmin -x $printer_del
+
 for printer in "${printer_del[@]}"; do
 	lpadmin -x "$printer"
 done

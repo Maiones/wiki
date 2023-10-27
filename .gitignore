@@ -3,6 +3,10 @@ kvd/
 trash/
 KVVD/
 rkkvd/
+backup/
+py_scripts/obubchalka/
+dgp10/copy/
+dgp10/files1/
 /dgp10/clear1.sh
 /dgp10/desktop_file_fu.sh
 /dgp10/desktop_file_syr.sh
