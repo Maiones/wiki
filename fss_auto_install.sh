@@ -98,7 +98,7 @@ read inputval3
 
 ####Добавить бекап локальной бд!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-if test "$inputval3" != "eln"
+if test "$inputval3" == "eln"
 then
 		cd /tmp/; wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_enl_null.sql	
 		psql -p 5433 -U postgres -d "fss" -f /tmp/backup_enl_null.sql
@@ -144,7 +144,7 @@ Version=1.0
 Type=Application
 Name=АРМ ЛПУ
 Exec=/usr/bin/run_fss.sh
-Icon=FEAB_fss_mo.0
+Icon=5CB0_fsslogo.0
 StartupNotify=true
 Path=/usr/bin/
 _EOF_
@@ -155,15 +155,11 @@ chmod +x /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 #########################################################
 
 #чек версии wine
-check5=$(wine --version | head -n1  | awk '{print $1;}')
-check6="wine-8.0.6-alt0.M80P.1"
-
-wine --version | head -n1  | awk '{print $1;}'
-
+check5=$( wine --version | head -n1  | awk '{print $1;}' | cut -d "-" -f2)
+check6="8.0.6"
 
 if [[ ${check5} == ${check6} ]]; then
-##не Добавить установку из wine со skel, вместо чистой установки \\ беда с dotnet40?????
-#cp -r /etc/skel/.wine .wine.fss
+result_message_wine=""
 
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
@@ -173,7 +169,7 @@ if [[ ${check5} == ${check6} ]]; then
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks ie8"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks gdiplus"
-	echo "$check5"
+	result_message_wine="$check5"
 else
 	###/home/user/.wine/drive_c/windows/system32/
 	rm -rf /home/${user1}/.wine.fss.bak 
@@ -184,37 +180,45 @@ else
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks ie8"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks gdiplus"
-	echo "$check5"
+	result_message_wine="$check5"
 fi
 
 ##########################################################
-#ступил тут  (не было папки .wine и не только и самого wine, выходит не ступил?)!!! написать проверку установлен ли wine и winetricks
-echo -en "$color2b Указываем какую программу необходимо установить (выбрав цифру, если их нет, то 1 )  $color2e"
-select_install=$(find /home/*/Загрузки/fss_e*.exe)
-select prog in ${select_install}
-do	
-	break
+
+echo -en "$color2b Указываем какую программу необходимо установить (прописать цифру) $color2e"
+programs=(/home/*/Загрузки/fss_e*.exe)
+
+for ((i=0; i<${#programs[@]}; i++)); do
+  echo "$((i+1)). ${programs[i]}"
 done
 
-su - user -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine '$prog'"
-mv /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop /tmp/
+read -p "Выберите номер программы: " choice
 
-check3=$(ls 2>/dev/null /home/${user1}/.wine.fss/drive_c/FssTools| wc -c)
-check4=$(ls 2>/dev/null /home/${user1}/.wine.fss/drive_c/FssArmErs| wc -c)
-
-
-##еще чек на проверку скрипта в /usr/bin/run_fss.sh меняется в зависимости от установленного фсс
-
-if [ ${check3} -ne 0 ]; then
-	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssTools && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+if [[ $choice =~ ^[1-${#programs[@]}]$ ]]; then
+  selected_program="${programs[$((choice-1))]}"
+  echo "Выбранная программа: $selected_program"
+else
+  echo "Некорректный выбор."
 fi
 
-if [ ${check4} -ne 0 ]; then
-	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssArmErs && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+
+su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine '$selected_program'"
+mv /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop /tmp/
+
+check3=$(/home/${user1}/.wine.fss/drive_c/FssTools)
+check4=$(/home/${user1}/.wine.fss/drive_c/FssArmErs)
+
+su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/Fss* && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+
+if [ test -e ${check3} ]; then
+	sed -i 's/5CB0_fsslogo.0/FEAB_fss_mo.0/g' /usr/bin/run_fss.sh
+fi
+
+if [ test -e ${check4} ]; then
 	sed -i 's/FssTools/FssArmErs/g' /usr/bin/run_fss.sh
 fi
 
 echo 
 echo "ФСС Установлено!"
 echo -e $final1
-
+echo $result_message_wine

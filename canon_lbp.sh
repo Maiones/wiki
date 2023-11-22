@@ -41,13 +41,16 @@ for printer in "${printer_del[@]}"; do
 	lpadmin -x "$printer"
 done
 
-#Продвинутый косячный поиск принтера
+#Продвинутый поиск принтера
 printer=$(lpinfo -v | grep -i "direct usb"| grep -i canon | grep -i LBP)
 if [ -n "$printer" ]; then
     printer_usb=$(echo $printer | sed -n "s/^.*usb:\/\/\([^?]*\).*$/\1/p" | cut -d '/' -f1)
     printer_model=$(echo $printer | sed -n "s/^.*usb:\/\/\([^?]*\).*$/\1/p" | sed -n "s/.*\///p" | cut -d '%' -f1)
     if [ $printer_model == LBP6030 ]; then
     	printer_model=LBP6000
+    fi
+    if [ $printer_model == LBP3050 ]; then
+      printer_model=LBP3050
     fi
     printer_name=$printer_usb'_'$printer_model
 fi
@@ -56,7 +59,7 @@ fi
 printer_ppd=$(lpinfo -m | grep $printer_model | cut -d " " -f1 | head -n 1)
 lpadmin -p $printer_name -m $printer_ppd -v ccp:/var/ccpd/fifo0 -E
 
-#Модуль ядра #не отрабатывает?
+#Модуль ядра
 modprobe usblp
 
 echo "Проверка доступа к lp0"
