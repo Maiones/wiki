@@ -13,10 +13,10 @@ fi
 check1=$(wine --version | cut -d " " -f1)
 
 #Проверка версии wine:
-if [ "$check1" != "wine-8.0.6-alt0.M80P.1" ]; then
-	echo $check1 не подходит для скрипта	
-	exit 0
-fi
+#if [ "$check1" != "wine-8.0.6-alt0.M80P.1" ]; then
+#	echo $check1 Не подходит для скрипта!!!
+#	exit 0
+#fi
 
 #Проверяем контрольную сумму контрольной суммы?
 test_sha256=/root/etersoft-repo/wine-etersoft-install.sha256

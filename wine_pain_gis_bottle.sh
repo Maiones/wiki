@@ -7,18 +7,27 @@ user1=$(who | grep '(:0)' | cut -d " " -f1)
 dir1=$(ls /home/$user1/.wine/drive_c/users/$user1/| wc -l)
 
 #Удаляем неудачные бекапы
-rm -rf /.*[0-9]*
+if [ ! -f "/.*[0-9]*" ]; then
+	rm -rf /.*[0-9]*
+	result_message_bak="Неудачные бекапы удалены."
+fi
 
-#Чек размера диска и log cups чистка 
-check1=/var/log/cups/error_log
-size1=$(du -b "$check10" | awk '{print $1}')
+#Чек размера диска и log cups чистка (>1Gb) 
+check_log=/var/log/cups/error_log
+size_log=$(du -b "$check_log" | awk '{print $1}')
 
-if [[ "$size1" -gt 1073741824 ]]; then
-    truncate -s 0 "$check1"
+if [[ "$size_log" -gt 1073741824 ]]; then
+    truncate -s 0 "$check_log"
     cupsctl --no-debug-logging
 else
     echo
 fi
+
+if [[ $(df -h / | awk 'NR==2 {print $5}' | tr -d '%') == 100 ]]; then
+    result_message_root_size="Файловая система полностью заполнена, прерываю скрипт."
+    exit 0
+fi
+
 
 #Проверка битых пакетов
 ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinstall
@@ -29,6 +38,9 @@ check8=$(wine --version | cut -d " " -f1)
 check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 wine --version | cut -d " " -f1
 
+#rpm -qa | grep libwine-4.9.1
+#libwine-4.9.1-alt0.M80C.2
+#apt-get --fix-broken install -y
 
 ########Проверяем бутылку
 if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
@@ -51,8 +63,16 @@ fi
 wine_bottle=$(/home/$user1/.wine/drive_c/Vitacore)
 if [ ! -d $wine_bottle ]; then
 	su - "$user1" -c "cp -r /etc/skel/.wine ."
+	result_message_bt="Бутылку в skel положили."
 fi
 
+#Добавить проверку wrapper, если гис в скелетоне остался старый
+if [ ! -f "/etc/skel/.wine/wrapper.cfg" ]; then
+	rm -rf /etc/skel/.wine/
+	cd /etc/skel/
+	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	result_message_wr="Бутылка с 4.9 заменена."
+fi	
 
 #Проверка фсс-aids-spectator приблуд?
 check2=/home/$user1/.wine/drive_c/AIDSNET59
@@ -90,7 +110,13 @@ if [ -d "$check7" ]; then
 fi
 
 #'Удаляем' мусорные ссылки
-su - '$user1' -c "mv /home/$user1/*.lnk /tmp/"
+trash1=$(/home/$user1/*.lnk)
+trash2=$(/home/$user1/Документы/*.lnk)
+
+if [ -f $trash1 -o -f $trash2  ]; then
+	su - '$user1' -c "mv /home/$user1/*.lnk /tmp/"
+	su - '$user1' -c "mv /home/$user1/Документы/*.lnk /tmp/"
+fi
 
 #Проверка пользовательской папки user на необходимые для запуска ГИСа файлы		
 if [ ${dir1} -le 22 ]; then 
@@ -115,6 +141,11 @@ fi
 chmod +rwxr+xr+x /usr/bin/wine
 
 env -i salt-call state.apply | tail -n 7
+echo "$result_message_root_size"
 echo "$result_message1"
 echo "$result_message2"
+echo "$result_message_bak"
+echo "$result_message_wr"
+echo "$result_message_bt"
+
 

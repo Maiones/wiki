@@ -7,7 +7,7 @@ if [ $(whoami) = root ] ; then
 	exit 1
 fi
 
-LOGFILE=/tmp/fss_install.log
+LOGFILE=/tmp/fss_install_astra.log
 exec > >(tee -a $LOGFILE)
 exec 2>/dev/null
 #exec 2>&1
@@ -40,33 +40,15 @@ final1=$("$color1b В папке /home/$user1/Загрузки/ нет серт�
 echo
 
 else 
-	
 	cp /home/$user1/Загрузки/cert.cer /opt/certs/
-
 fi
 
 if [ ${check2} -eq 0 ]; then
-
 echo -en "$color1b В папке /home/$user1/Загрузки/ нет установщика. Установка отменяется. $color1e"
 exit 1
-
 fi
 
-if rpm -qa | grep -q postgresql9.4 ; then 
-	echo "Уже имеется postgresql старой версии нужно удалить её и сделать бекап"
-	echo -n " 'yes' для отмены установки или 'del' для удаления postgresql9.4 (бекапы не делаются):"
-read inputval1
-if test "$inputval1" == "yes" 
-then
-	echo -en "$color1b Установка отменена :с $color1e"
-	exit 1
-elif test "$inputval1" == "del"
-then
-	apt-get remove -y postgresql-common postgresql9.4
-fi
-fi
-
-##################################################
+#################################################
 
 echo -en "$color2b Устанавливаем локальную бд: yes/no?? $color2e"
 read inputval2
@@ -77,19 +59,27 @@ then
 elif test "$inputval2" == "yes"
 	then
 
-env -i apt-get update; env -i apt-get -y dist-upgrade
-env -i apt-get install -y postgresql10-server
+env -i apt install -y postgresql-13 postgresql-client-13
+systemctl stop postgresql
+rm -rf /var/lib/postgresql/11/main/*
+su - postgres -c "touch ~/.bashrc"
+su - postgres -c "echo 'export PATH=$PATH:/usr/lib/postgresql/13/bin' > ~/.bashrc"
+su - postgres -c "echo 'export PGDATA="$HOME/13/main"' >> ~/.bashrc"
+su - postgres -c "source ~/.bashrc"
+su - postgres -c "initdb --locale=ru_RU.utf8 --lc-messages=ru_RU.utf8"
 
-/etc/init.d/postgresql initdb
+#редактируем /etc/postgresql/13/main/pg_hba.conf, добавляем в конец файла
+#host all all 10.0.0.0/24 md5
+#где 10.0.0.0/24 - CIDR вашей сети или внешнего хоста, которому разрешается доступ
+sed -i 's/5432/5433/g' /etc/postgresql/11/main/postgresql.conf
+sed -i 's/peer/trust/' /etc/postgresql/11/main/pg_hba.conf
 
-echo listen_addresses = "'*'" >> /var/lib/pgsql/data/postgresql.conf
-sed -i 's/5432/5433/g' /lib/systemd/system/postgresql.service
 systemctl daemon-reload
-
-systemctl enable postgresql; systemctl restart postgresql
+systemctl enable postgresql && systemctl start postgresql
 
 psql -p 5433 -U postgres -c "CREATE USER fss WITH SUPERUSER LOGIN;"
 psql -p 5433 -U postgres -c "CREATE DATABASE fss WITH ENCODING='UTF-8';"
+
 
 #####Пустая бд пострегреса.
 cd /tmp/
@@ -123,6 +113,13 @@ fi
 fi
 fi
 
+********
+********
+********
+
+
+
+
 ##################################################
 
 cat << '_EOF_' >  /usr/bin/run_fss.sh
@@ -131,7 +128,7 @@ cat << '_EOF_' >  /usr/bin/run_fss.sh
 /opt/cprocsp/bin/amd64/csptestf -absorb -certs
 /opt/cprocsp/bin/amd64/certmgr -inst -store uMy -file "/opt/certs/cert.cer"
 env WINEPREFIX=$HOME/.wine.fss wine reg delete 'HKEY_CURRENT_USER\Software\Microsoft\SystemCertificates\My\Certificates\' /f
-env WINEPREFIX=$HOME/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1
+env WINEPREFIX=$HOME/.wine.fss wine /usr/lib32/i386-linux-gnu/wine-etersoft/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1
 cd "$HOME/.wine.fss/drive_c/FssTools/"
 env WINEPREFIX=$HOME/.wine.fss wine fss_mo.exe
 _EOF_
@@ -155,33 +152,17 @@ chmod +x /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 #########################################################
 
 #чек версии wine
-check5=$( wine --version | head -n1  | awk '{print $1;}' | cut -d "-" -f2)
-check6="8.0.6"
-
-if [[ ${check5} == ${check6} ]]; then
-result_message_wine=""
 
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so"
-	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/i386-unix/cpcsp_proxy.dll.so cpcsp_proxy.dll.so"
+	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib32/i386-linux-gnu/wine-etersoft/i386-unix/cpcsp_proxy_setup.exe.so"
+	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib32/i386-linux-gnu/wine-etersoft/i386-unix/cpcsp_proxy.dll.so"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks ie8"
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks gdiplus"
-	result_message_wine="$check5"
-else
-	###/home/user/.wine/drive_c/windows/system32/
-	rm -rf /home/${user1}/.wine.fss.bak 
-	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine /usr/lib/wine/cpcsp_proxy_setup.exe.so"
-	su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/windows/system32/ && ln -svf /usr/lib/wine/cpcsp_proxy.dll.so"
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks dotnet40"
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks ie8"
-	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss winetricks gdiplus"
-	result_message_wine="$check5"
-fi
+
+
 
 ##########################################################
 

@@ -2,7 +2,9 @@
 
 # Устанавить разделитель строк в качестве IFS (важно для цикла)
 IFS=$'\n'
-lpstat_check=$(lpstat -v | grep ipp | grep 631)
+lpstat_check=$(lpstat -v | grep 631)
+
+cp /etc/cups/printers.conf /tmp/
 
 for printer_q in $lpstat_check; do
     printer_name=$(echo "$printer_q" | awk '{print $3}' | sed 's/:$//')
