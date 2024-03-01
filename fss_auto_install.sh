@@ -1,4 +1,8 @@
  #!/bin/bash
+ 
+ 
+ #ACHTUNG!
+#add chunk of .wine and check for wine, if 8 version then load chunk and do install :)
 
 if [ $(whoami) = root ] ; then 
 	echo 
@@ -131,7 +135,11 @@ cat << '_EOF_' >  /usr/bin/run_fss.sh
 /opt/cprocsp/bin/amd64/csptestf -absorb -certs
 /opt/cprocsp/bin/amd64/certmgr -inst -store uMy -file "/opt/certs/cert.cer"
 env WINEPREFIX=$HOME/.wine.fss wine reg delete 'HKEY_CURRENT_USER\Software\Microsoft\SystemCertificates\My\Certificates\' /f
-env WINEPREFIX=$HOME/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1
+if [ -f /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so ];then
+ 	WINEPREFIX=$HOME/.wine.fss wine /usr/lib/wine/i386-unix/cpcsp_proxy_setup.exe.so one1 two1 three1	
+else
+	WINEPREFIX=$HOME/.wine.fss wine /usr/lib/wine/cpcsp_proxy_setup.exe.so one1 two1	
+fi
 cd "$HOME/.wine.fss/drive_c/FssTools/"
 env WINEPREFIX=$HOME/.wine.fss wine fss_mo.exe
 _EOF_
@@ -155,12 +163,10 @@ chmod +x /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 #########################################################
 
 #чек версии wine
-check5=$( wine --version | head -n1  | awk '{print $1;}' | cut -d "-" -f2)
+check5=$(wine --version | head -n1  | awk '{print $1;}' | cut -d "-" -f2)
 check6="8.0.6"
 
 if [[ ${check5} == ${check6} ]]; then
-result_message_wine=""
-
 	rm -rf /home/${user1}/.wine.fss.bak 
 	mv /home/${user1}/.wine.fss /home/${user1}/.wine.fss.bak 
 	su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss WINEARCH=win32 wine wineboot"
@@ -202,13 +208,14 @@ else
 fi
 
 su - ${user1} -c "XAUTHORITY=/var/run/lightdm/'$user1'/xauthority WINEPREFIX=/home/'$user1'/.wine.fss wine '$selected_program'"
-mv /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop /tmp/
 
 check3=$(/home/${user1}/.wine.fss/drive_c/FssTools)
 check4=$(/home/${user1}/.wine.fss/drive_c/FssArmErs)
 
-su - ${user1} -c "cp /home/'$user1'/.wine.fss/drive_c/windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /home/'$user1'/.wine.fss/drive_c/Fss*"
-su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/Fss* && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+su - ${user1} -c "cp /home/'$user1'/.wine.fss/drive_c/windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /home/'$user1'/.wine.fss/drive_c/FssArmErs/"
+su - ${user1} -c "cp /home/'$user1'/.wine.fss/drive_c/windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /home/'$user1'/.wine.fss/drive_c/FssTools"
+su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssArmErs && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
+su - ${user1} -c "cd /home/'$user1'/.wine.fss/drive_c/FssTools && WINEPREFIX=~/.wine.fss wine C:/Windows/Microsoft.NET/Framework/v4.0.30319/RegAsm.exe /registered GostCryptography.dll"
 
 if [ test -e ${check3} ]; then
 	sed -i 's/5CB0_fsslogo.0/FEAB_fss_mo.0/g' /usr/bin/run_fss.sh
@@ -217,6 +224,12 @@ fi
 if [ test -e ${check4} ]; then
 	sed -i 's/FssTools/FssArmErs/g' /usr/bin/run_fss.sh
 fi
+
+rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ"
+rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ(ЭРС)"
+rm -rf "/home/$user1/.local/share/applications/wine/Programs/wine-Programs-СФР*
+rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop
+rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ(ЭРС).desktop
 
 echo 
 echo "ФСС Установлено!"

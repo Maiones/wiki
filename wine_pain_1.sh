@@ -23,6 +23,7 @@ read -p $pluscolor"Удалить префикс wine и починить все
 Тис переустановка 'ttis'
 Ядро 5.18.14 'oreh'
 Canon_lbp 'conon'
+Пантум 2200 alt4 'srantum3'
 Пантум 2200-2500 'srantum2'
 Пантум 6500 'srantum'
 Принтер из ТИСа 'ptis'
@@ -64,6 +65,9 @@ case "$decision1" in
 	"srantum2")
 		scp -P $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey -r /home/user/kva-kva/printers/SRANTUM/tk_pantum_1.1.84x32_P2510/ root@$inputval:/tmp/
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_pantum2.sh
+		;;
+	"srantum3")
+		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_pantum3.sh
 		;;
 	"woo")
 		scp -P $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey -r /home/user/kva-kva/med_linux/word/Star_wine.tar.gz root@$inputval:/tmp/
