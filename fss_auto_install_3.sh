@@ -9,7 +9,7 @@ fi
 
 LOGFILE=/tmp/fss_install.log
 exec > >(tee -a $LOGFILE)
-exec 2>/dev/null
+#exec 2>/dev/null
 #exec 2>&1
 
 color1b="\033[37;1;41m"
@@ -51,7 +51,7 @@ fi
 
 ##################################################
 
-echo -en "$color2b Устанавливаем локальную бд: yes/no?? $color2e"
+echo -en "$color1b Устанавливаем локальную бд: yes/no?? $color2e"
 read inputval2
 if test "$inputval2" == "no" 
 then
@@ -128,6 +128,17 @@ fi
 
 ##########################################################
 
+echo -en "$color2b Выберите номер программы: ФСС ЭРС - 1; ФСС ЭЛН - 2:$color2e"
+read inputval5
+
+if [ "$inputval5" == "1" ]; then
+    su - ${user1} -c "cd /home/'$user1'/ && wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.ers.tar.gz"
+    su - ${user1} -c "tar -xf wine.fss.ers.tar.gz"
+elif [ "$inputval5" == "2" ]; then
+    su - ${user1} -c "cd /home/'$user1'/ && wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.eln.tar.gz"
+    su - ${user1} -c "tar -xf wine.fss.eln.tar.gz"
+fi
+
 cat << '_EOF_' >  /usr/bin/run_fss.sh
 #!/bin/bash
 /opt/cprocsp/bin/amd64/certmgr -delete -all -store uMy
@@ -161,32 +172,11 @@ chmod +x /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 
 #########################################################
 
-#!!!!!!!!!!!!!!!!!!!!!!!!
-read -p "$color2b Выберите номер программы: ФСС ЭРС - 1;
-ФСС ЭЛН -2:"$nocolor decision1
-
-cd /home/'$user1'/
-case "$decision1" in
-	"1")
-		wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.ers.tar.gz
-		tar -xf wine.fss.ers.tar.gz
-		;;
-	"2")
-        wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.eln.tar.gz
-        tar -xf wine.fss.eln.tar.gz
-		;;
-	*)
-		echo "Некорректный ввод"
-		;;
-esac
-
 rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ"
 rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ(ЭРС)"
 rm -rf /home/$user1/.local/share/applications/wine/Programs/wine-Programs-СФР*
 rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop
 rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ(ЭРС\).desktop
 
-echo 
-echo "ФСС Установлено!"
-echo -e $final1
-echo $result_message_wine
+echo -en "ФСС Установлено!"
+
