@@ -17,7 +17,7 @@ fi
 
 tis_gz=tis-service3.tar.gz
 
-read -p $pluscolor"Удалить префикс wine и починить все что можно 'pupa'
+read -p "$pluscolor Удалить префикс wine и починить все что можно 'pupa'
 Удалить пакет wine 'lupa'
 Тис-Гис запуск (1300) 'mtu'
 Тис переустановка 'ttis'

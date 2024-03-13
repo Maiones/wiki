@@ -65,7 +65,7 @@ tar -xf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 
 #Удаляем библиотеки wine
 rpm -ev libwine libwine-gl wine wine-cpcsp_proxy
-env -i salt-call state.apply
+env -i salt-call state.apply | tail -n 7
 
 #запускаем скрипт переустановки бутылки
 source /home/user/kva-kva/scripts/wine_pain_gis_bottle.sh
