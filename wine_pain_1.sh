@@ -23,12 +23,11 @@ read -p "$pluscolor Удалить префикс wine и починить вс�
 Тис переустановка 'ttis'
 Ядро 5.18.14 'oreh'
 Canon_lbp 'conon'
-Пантум 2200 alt4 'srantum3'
-Пантум 2200-2500 'srantum2'
-Пантум 6500 'srantum'
+Пантум v3 'srantum'
 Принтер из ТИСа 'ptis'
 Установить lpu 'lpu'
 Установка Expert 'exp'
+Обновить заставу на лин пк до 9 'podstava'
 #добавить тис переустановку
 Wine 4.9 не пашет word 'woo':"$nocolor decision1
 
@@ -84,6 +83,9 @@ case "$decision1" in
 	"lpu")
 		scp -P $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey -r /home/user/kva-kva/med_linux/lpu/ root@$inputval:/tmp/
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/lpu_pain.sh
+		;;
+	"podstava")
+		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_zastava_linux9.sh
 		;;
 	*)
 		 echo "Некорректный ввод"

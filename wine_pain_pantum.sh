@@ -1,8 +1,10 @@
 #!/bin/bash
 
+
+apt-get remove -y pantum
 cd /tmp/
-wget -nv --no-cache http://10.11.128.115/.pcstuff/test/pantum-1.1.96-alt2.x86_64.rpm
-env -i apt-get install -y ./pantum-1.1.96-alt2.x86_64.rpm
+wget -nv --no-cache http://10.11.128.115/.pcstuff/test/pantum-1.1.96-alt3.x86_64.rpm
+env -i apt-get install -y ./pantum-1.1.96-alt3.x86_64.rpm
 
 printer=$(lpinfo -v | grep -i "direct usb"| grep -i pantum)
 if [ -n "$printer" ]; then

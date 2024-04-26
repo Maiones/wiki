@@ -24,7 +24,8 @@ if [ -d /var/ccpd/fifo0 ]; then
 	for ccpd in {$ccpdad_del[@]}; do
 		ccpdadmin -x $ccpd
 	done
-	rm -rf /var/ccpd/
+	rm -rf /var/ccpd
+	chkconfig ccpd off
 	service ccpd stop
 fi
 
@@ -34,12 +35,36 @@ mkfifo /var/ccpd/fifo0
 chmod -R 777 /var/ccpd
 
 #Удаляем все установленные принтеры(иначе засрётся FIFO path):
-#TODO вернуть удаленные принтеры обратно???????????
-printer_del=$(lpstat -v | cut -d " " -f3 | sed 's/:$//')
+printer_del=$(lpstat -v | grep ccp | awk '{print $3}' | sed 's/:$//')
 
 for printer in "${printer_del[@]}"; do
 	lpadmin -x "$printer"
 done
+
+#Удаляем принтеры из ccpdadmin
+printer_del2=$(ccpdadmin | grep -i ccp |  awk '{print $3}' | sed -n '3p')
+
+for printer in "${printer_del2[@]}"; do
+	ccpdadmin -x "$printer"
+done
+
+printer1120=$(lpinfo -v | grep -i "direct usb" | grep -i "canon" | grep -o "LBP-1120")
+if [ "$printer1120" == "LBP-1120" ]; then
+	lpadmin -p LBP1120 -m CNCUPSLBP1120CAPTJ.ppd -v ccp:/var/ccpd/fifo0 -E
+	ccpdadmin -p LBP1120 -o /dev/usb/lp0
+	cd /tmp/
+	wget -nv --no-cache http://10.11.128.115/.pcstuff/test/ccpd
+	cp ccpd /etc/init.d/
+	chmod +x /etc/init.d/ccpd
+	chkconfig --add ccpd
+	chkconfig ccpd on
+	service ccpd restart
+	service cups restart
+	lpadmin -d LBP1120
+	echo "Принтер canon lbp установлен!"
+	exit 0
+fi
+
 
 #Продвинутый поиск принтера
 printer=$(lpinfo -v | grep -i "direct usb"| grep -i canon | grep -i LBP)
@@ -62,7 +87,12 @@ if [ -n "$printer" ]; then
 fi
 
 #Продвинутый поиск драйвера для принтера
+#CNCUPSLBP6018CAPTK.ppd
 printer_ppd=$(lpinfo -m | grep $printer_model | cut -d " " -f1 | head -n 1)
+if [ "$printer_model" == "6018L" ]; then
+	lpadmin -p $printer_name -m CNCUPSLBP6018CAPTK.ppd -v ccp:/var/ccpd/fifo0 -E
+fi
+
 lpadmin -p $printer_name -m $printer_ppd -v ccp:/var/ccpd/fifo0 -E
 
 #Модуль ядра

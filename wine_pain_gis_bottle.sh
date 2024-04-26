@@ -127,6 +127,7 @@ fi
 
 #Правильный запуск
 sed -i "5c\Exec=/usr/bin/run_vita.sh" /etc/skel/Рабочий\ стол/as_rmiac.desktop
+sed -i "s|<\wine\>|wine_noproxy.sh|g" /etc/skel/Рабочий\ стол/AIS_LPU_RDS.desktop
 
 #Обновляемся из salt 
 ####Вывести проверку доступности
@@ -138,7 +139,7 @@ if [ $salt1 == NO ]; then
 fi
 
 #разрешение wine
-chmod +rwxr+xr+x /usr/bin/wine
+chmod 0755 /usr/bin/wine
 
 env -i salt-call state.apply | tail -n 7
 echo "$result_message_root_size"

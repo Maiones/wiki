@@ -1,0 +1,5 @@
+#!/bin/bash
+
+/opt/kaspersky/kesl/bin/kesl-control --stop-task 14
+
+exit 0

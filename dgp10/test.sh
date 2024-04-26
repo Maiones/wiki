@@ -1,16 +1,12 @@
 #!/bin/bash
 
-test_p="/tmp/failed_ping_test.txt"
+test_p="/tmp/failed_ping_zastava_gates.txt"
 echo "" > $test_p
 
 HOSTS="
-10.14.198.109
-10.14.198.107
-10.14.198.106
-10.14.198.105
-10.14.198.104
-10.14.198.103
-10.14.198.102
+10.193.28.151
+10.224.78.242
+10.193.31.16
 "
 for i in $HOSTS
 do
@@ -22,6 +18,9 @@ if [ $? != 0 ]; then
 	echo "$i is UP" >> $test_p
 fi
 
-ssh -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$i 'bash -s' < /home/user/kva-kva/scripts/dgp10/kasper_.sh
-
+#scp -o "StrictHostKeyChecking=no" -i /home/user/key/id_rsa_med_servers -r /home/user/medbot/certs/калугасауауа.cer  root@$i:/tmp/
+ssh -o "StrictHostKeyChecking=no" -i /home/user/key/id_rsa_med_servers root@$i 'bash -s <<EOF
+/opt/ZASTAVAoffice/bin/vpnconfig -add cert /tmp/калугасауауа.cer pin 12345678
+EOF
+'
 done
