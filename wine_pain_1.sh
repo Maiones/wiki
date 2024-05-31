@@ -4,9 +4,16 @@ LANG=C
 export pluscolor=$(tput setab 8)
 export nocolor=$(tput sgr 0)
 
-echo -n "IP мед пк: "
-read inputval
-
+while true; do
+	echo -n "IP мед пк: "
+	read inputval
+	if [ -z "$inputval" ];then
+		echo "Введите IP!"
+	else
+		break
+	fi
+done
+	
 echo -n "Порт мед пк: "
 read inputval2
 
@@ -19,6 +26,7 @@ tis_gz=tis-service3.tar.gz
 
 read -p "$pluscolor Удалить префикс wine и починить все что можно 'pupa'
 Удалить пакет wine 'lupa'
+Обновление wine до 9.0.15 'winep'
 Тис-Гис запуск (1300) 'mtu'
 Тис переустановка 'ttis'
 Ядро 5.18.14 'oreh'
@@ -53,7 +61,7 @@ case "$decision1" in
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_tis.sh
 		;;		
 	"ptis")
-		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_8.sh
+		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_web_print.sh
 		;;
 	"conon")
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/canon_lbp.sh
@@ -87,6 +95,9 @@ case "$decision1" in
 	"podstava")
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_zastava_linux9.sh
 		;;
+	"winep")
+		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_wine_9.0.15.sh
+		;;		
 	*)
 		 echo "Некорректный ввод"
 		 ;;

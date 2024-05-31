@@ -38,10 +38,6 @@ check8=$(wine --version | cut -d " " -f1)
 check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 wine --version | cut -d " " -f1
 
-#rpm -qa | grep libwine-4.9.1
-#libwine-4.9.1-alt0.M80C.2
-#apt-get --fix-broken install -y
-
 ########Проверяем бутылку
 if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
 	echo
@@ -72,6 +68,17 @@ if [ ! -f "/etc/skel/.wine/wrapper.cfg" ]; then
 	cd /etc/skel/
 	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 	result_message_wr="Бутылка с 4.9 заменена."
+fi
+
+
+if [ ! -f "/usr/bin/prepare_bottle.sh" ]; then
+	cat << '_EOF_' > /usr/bin/prepare_bottle.sh
+#!/bin/sh
+grep -q -m1 "%user%" "$HOME"/.wine/{user.reg,system.reg,userdef.reg} && sed "s/%user%/$USER/g" -i "$HOME"/.wine/{user.reg,system.reg,userdef.reg}
+[ -d "$HOME/.wine/drive_c/users/$USER/" ] || cp -r "$HOME/.wine/drive_c/users/user/" "$HOME/.wine/drive_c/users/$USER/"e
+_EOF_
+	chmod +x /usr/bin/prepare_bottle.sh
+	result_message_pr="prepare_bottle добавлен!"
 fi	
 
 #Проверка фсс-aids-spectator приблуд?
@@ -81,6 +88,12 @@ check4=/home/$user1/.wine/drive_c/FssArmErs
 check5=/home/$user1/.wine/drive_c/FssTools
 check6=/home/$user1/.wine/drive_c/Radiant
 check_wsp=/home/$user1/.wine.special
+
+# Чек доступа бутылки
+if [ ! -d $wine_bottle ]; then
+	su - "$user1" -c "cp -r /etc/skel/.wine ."
+	result_message_bt="Бутылку в skel положили."
+fi
 
 #Бекап старой бутылки и переустановка её
 result_message1=""
@@ -148,5 +161,6 @@ echo "$result_message2"
 echo "$result_message_bak"
 echo "$result_message_wr"
 echo "$result_message_bt"
+cho "$result_message_pr"
 
 
