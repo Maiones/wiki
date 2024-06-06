@@ -19,15 +19,12 @@ size_log=$(du -b "$check_log" | awk '{print $1}')
 if [[ "$size_log" -gt 1073741824 ]]; then
     truncate -s 0 "$check_log"
     cupsctl --no-debug-logging
-else
-    echo
 fi
 
 if [[ $(df -h / | awk 'NR==2 {print $5}' | tr -d '%') == 100 ]]; then
     result_message_root_size="Файловая система полностью заполнена, прерываю скрипт."
     exit 0
 fi
-
 
 #Проверка битых пакетов
 ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinstall
@@ -36,31 +33,18 @@ ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinsta
 result_message2=""
 check8=$(wine --version | cut -d " " -f1)
 check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
-wine --version | cut -d " " -f1
+chek_ether_bottle=ef4c17eee3764500fc9200602cea9f66
+chek_ether_bottle2=$(md5sum /root/etersoft-repo/wine_bottle_8.0.6.tar.gz)
 
-########Проверяем бутылку
-if [ "$check8" == "wine-8.0.5-alt0.M80P.1" ]; then
-	echo
-	if [ -e "$check9" ]; then 
-	echo
-	else
-		cd /root/etersoft-repo/
-		wget -nv --no-cache http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
-    	cd /etc/skel/
-		rm -rf .wine
-		tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
-		result_message2=$(wine --version); Не было wine_bottle_8.0.6 - поставил. 
-	fi
-	else
-		result_message2="$(wine --version)"
-fi
-
-#Если вдруг бутылки нет, мы её выше проверили и теперь из скелетона добавим
-wine_bottle=$(/home/$user1/.wine/drive_c/Vitacore)
-if [ ! -d $wine_bottle ]; then
-	su - "$user1" -c "cp -r /etc/skel/.wine ."
-	result_message_bt="Бутылку в skel положили."
-fi
+# Проверяем md5sum бутылки, в случае несоотвествия переустанавливаем бутылку в skel.
+if [ ! "$chek_ether_bottle" =~ "$chek_ether_bottle2" ]; then
+	cd /root/etersoft-repo
+	rm -f wine_bottle_8.0.6.tar.gz
+	env -i wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
+	cd /etc/skel/
+	rm -rf .wine
+	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+fi 
 
 #Добавить проверку wrapper, если гис в скелетоне остался старый
 if [ ! -f "/etc/skel/.wine/wrapper.cfg" ]; then
@@ -69,7 +53,6 @@ if [ ! -f "/etc/skel/.wine/wrapper.cfg" ]; then
 	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 	result_message_wr="Бутылка с 4.9 заменена."
 fi
-
 
 if [ ! -f "/usr/bin/prepare_bottle.sh" ]; then
 	cat << '_EOF_' > /usr/bin/prepare_bottle.sh
@@ -88,12 +71,6 @@ check4=/home/$user1/.wine/drive_c/FssArmErs
 check5=/home/$user1/.wine/drive_c/FssTools
 check6=/home/$user1/.wine/drive_c/Radiant
 check_wsp=/home/$user1/.wine.special
-
-# Чек доступа бутылки
-if [ ! -d $wine_bottle ]; then
-	su - "$user1" -c "cp -r /etc/skel/.wine ."
-	result_message_bt="Бутылку в skel положили."
-fi
 
 #Бекап старой бутылки и переустановка её
 result_message1=""
@@ -116,10 +93,9 @@ else
 fi
 
 #Проверяем папку для .lnk файлов
-check7=/home/$user1/.wine/drive_c/users/'$user1'/Recent
-if [ -d "$check7" ]; then
+check_lnk=/home/$user1/.wine/drive_c/users/'$user1'/Recent
+if [ -d "$check_lnk" ]; then
 	su - '$user1' -c "mkdir /home/$user1/.wine/drive_c/users/'$user1'/Recent/"
-	su - '$user1' -c "mv *.lnk /tmp/"
 fi
 
 #'Удаляем' мусорные ссылки
@@ -154,13 +130,20 @@ fi
 #разрешение wine
 chmod 0755 /usr/bin/wine
 
+#Проверка mtu и заставы
+#grep -E 'inet [0-9]+\.' | grep 10.* | awk '{print $2}'
+zastava_check=$(/opt/ZASTAVAclient/bin/vpnmonitor -p)
+
+md2sum_end=$($chek_ether_bottle2 | awk '{print 1$}')
+
 env -i salt-call state.apply | tail -n 7
 echo "$result_message_root_size"
 echo "$result_message1"
 echo "$result_message2"
 echo "$result_message_bak"
 echo "$result_message_wr"
-echo "$result_message_bt"
-cho "$result_message_pr"
+echo "$result_message_pr"
+echo "$zastava_check"
+echo "md5sum ef4c17eee3764500fc9200602cea9f66 = $md2sum_end"
 
 

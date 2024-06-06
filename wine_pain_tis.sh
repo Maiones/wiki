@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#потерял актуальность
+
 tis_chek1=/opt/tis-service.bak
 tis_chek2=/opt/tis-service
 tis_gz=tis-service3.tar.gz

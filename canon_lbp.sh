@@ -1,20 +1,15 @@
 #!/bin/bash
 
 #Проверяем есть ли пакеты для принтера в системе, устанавливаем, если нет.
-if rpm -qa | grep -q cndrvcups-common; then 
-	echo 
-else
+if ! rpm -qa | grep -q cndrvcups-common; then
 	cd /tmp/
-	env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-common-3.21-1.x86_64.rpm
-	env -i apt-get install -y ./cndrvcups-common-3.21-1.x86_64.rpm
+	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-common-3.21-1.x86_64.rpm
+	rm -f cndrvcups-common-3.21-1.x86_64.rpm
 fi
 
-if rpm -qa | grep -q cndrvcups-capt; then 
-	echo 
-else
-	cd /tmp/
-	env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-capt-2.71-1.x86_64.rpm
-	env -i apt-get install -y ./cndrvcups-capt-2.71-1.x86_64.rpm
+if ! rpm -qa | grep -q cndrvcups-capt; then
+	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-capt-2.71-1.x86_64.rpm
+	rm -f cndrvcups-capt-2.71-1.x86_64.rpm
 fi
 
 #Чистим старые конфиги, если есть:

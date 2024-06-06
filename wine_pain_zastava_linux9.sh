@@ -14,7 +14,7 @@ else
 	/opt/ZASTAVAclient/bin/vpnconfig -s ike 1 2
 	/opt/ZASTAVAclient/bin/plg_ctl -i /opt/ZASTAVAclient/etc/cp_plg_cpro.cfg
 	/opt/ZASTAVAclient/bin/plg_ctl -d cp_plg_gost
-	opt/ZASTAVAclient/bin/vpnmonitor -p
+	/opt/ZASTAVAclient/bin/vpnmonitor -p
 	exit 0
 fi
 

@@ -7,9 +7,9 @@ while true; do
 	echo -n "С какого номера создаст сертификаты в Заставе: "
 	read inputval
 	if [[ "$inputval" =~ ^[0-9]+$ ]];then
-		echo "Введите число!"
-	else
 		break
+	else
+		echo "Введите число!"
 	fi
 done
 
@@ -17,9 +17,9 @@ while true; do
 	echo -n "Какая по счету выгрузка: "
 	read inputval1
 		if [[ "$inputval1" =~ ^[0-9]+$ ]];then
-		echo "Введите число!"
-	else
 		break
+	else
+		echo "Введите число!"
 	fi
 done
 
