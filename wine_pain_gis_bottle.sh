@@ -30,20 +30,20 @@ fi
 ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinstall
 
 # Проверяем бутылку и версию wine 
-result_message2=""
 check8=$(wine --version | cut -d " " -f1)
 check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
 chek_ether_bottle=ef4c17eee3764500fc9200602cea9f66
-chek_ether_bottle2=$(md5sum /root/etersoft-repo/wine_bottle_8.0.6.tar.gz)
+chek_ether_bottle2=$(md5sum /root/etersoft-repo/wine_bottle_8.0.6.tar.gz | awk '{print $1}')
 
 # Проверяем md5sum бутылки, в случае несоотвествия переустанавливаем бутылку в skel.
-if [ ! "$chek_ether_bottle" =~ "$chek_ether_bottle2" ]; then
+if [ ! "$chek_ether_bottle" = "$chek_ether_bottle2" ]; then
 	cd /root/etersoft-repo
 	rm -f wine_bottle_8.0.6.tar.gz
 	env -i wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
 	cd /etc/skel/
 	rm -rf .wine
 	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	result_message_md5="md5sum wine_bottle_8.0.6.tar.gz не верна."
 fi 
 
 #Добавить проверку wrapper, если гис в скелетоне остался старый
@@ -134,16 +134,14 @@ chmod 0755 /usr/bin/wine
 #grep -E 'inet [0-9]+\.' | grep 10.* | awk '{print $2}'
 zastava_check=$(/opt/ZASTAVAclient/bin/vpnmonitor -p)
 
-md2sum_end=$($chek_ether_bottle2 | awk '{print 1$}')
-
 env -i salt-call state.apply | tail -n 7
 echo "$result_message_root_size"
 echo "$result_message1"
-echo "$result_message2"
 echo "$result_message_bak"
 echo "$result_message_wr"
 echo "$result_message_pr"
 echo "$zastava_check"
-echo "md5sum ef4c17eee3764500fc9200602cea9f66 = $md2sum_end"
+echo "$result_message_md5"
+
 
 

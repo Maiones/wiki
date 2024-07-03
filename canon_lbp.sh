@@ -1,15 +1,22 @@
 #!/bin/bash
 
 #Проверяем есть ли пакеты для принтера в системе, устанавливаем, если нет.
+
+cd /tmp/
+
 if ! rpm -qa | grep -q cndrvcups-common; then
-	cd /tmp/
-	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-common-3.21-1.x86_64.rpm
+	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/cndrvcups-common-3.40-1.x86_64.rpm
 	rm -f cndrvcups-common-3.21-1.x86_64.rpm
 fi
 
 if ! rpm -qa | grep -q cndrvcups-capt; then
-	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/canon_lbp_64/cndrvcups-capt-2.71-1.x86_64.rpm
+	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/cndrvcups-capt-2.71-1.x86_64.rpm
 	rm -f cndrvcups-capt-2.71-1.x86_64.rpm
+fi
+
+if ! rpm -qa | grep -q cndrvcups-ufr2-uk; then
+	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/cndrvcups-ufr2-uk-3.10-1.x86_64.rpm
+	rm -f cndrvcups-ufr2-uk-3.10-1.x86_64.rpm
 fi
 
 #Чистим старые конфиги, если есть:
@@ -45,7 +52,7 @@ done
 
 printer1120=$(lpinfo -v | grep -i "direct usb" | grep -i "canon" | grep -o "LBP-1120")
 if [ "$printer1120" == "LBP-1120" ]; then
-	lpadmin -p LBP1120 -m CNCUPSLBP1120CAPTJ.ppd -v ccp:/var/ccpd/fifo0 -E
+	lpadmin -p LBP1120 -m CNCUPSLBP1120CAPTJ.ppd -v ccp:/var/ccpd/fifo0:59687 -E
 	ccpdadmin -p LBP1120 -o /dev/usb/lp0
 	cd /tmp/
 	wget -nv --no-cache http://10.11.128.115/.pcstuff/test/ccpd
@@ -85,10 +92,10 @@ fi
 #CNCUPSLBP6018CAPTK.ppd
 printer_ppd=$(lpinfo -m | grep $printer_model | cut -d " " -f1 | head -n 1)
 if [ "$printer_model" == "6018L" ]; then
-	lpadmin -p $printer_name -m CNCUPSLBP6018CAPTK.ppd -v ccp:/var/ccpd/fifo0 -E
+	lpadmin -p $printer_name -m CNCUPSLBP6018CAPTK.ppd -v ccp:/var/ccpd/fifo0:59687 -E
 fi
 
-lpadmin -p $printer_name -m $printer_ppd -v ccp:/var/ccpd/fifo0 -E
+lpadmin -p $printer_name -m $printer_ppd -v ccp:/var/ccpd/fifo0:59687 -E
 
 #Модуль ядра
 modprobe usblp

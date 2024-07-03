@@ -12,9 +12,8 @@ else
 	rm /tmp/ZASTAVAclient-9.0.23667-fsb-5.18.14-un-def-alt1-x86_64.rpm
 	/opt/ZASTAVAclient/bin/vpnconfig -a lsp system pmp "$cert" DN medvpn2.tatarstan.ru 1
 	/opt/ZASTAVAclient/bin/vpnconfig -s ike 1 2
-	/opt/ZASTAVAclient/bin/plg_ctl -i /opt/ZASTAVAclient/etc/cp_plg_cpro.cfg
-	/opt/ZASTAVAclient/bin/plg_ctl -d cp_plg_gost
+	/opt/ZASTAVAclient/bin/plg_ctl -i /opt/ZASTAVAclient/etc/cp_plg_gost.cfg
+	/opt/ZASTAVAclient/bin/plg_ctl -d cp_plg_cpro
 	/opt/ZASTAVAclient/bin/vpnmonitor -p
-	exit 0
 fi
 

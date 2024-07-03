@@ -6,6 +6,7 @@ lpstat_check=$(lpstat -v | grep 631)
 
 cp /etc/cups/printers.conf /tmp/
 
+# Ошибка при пересоздании нескольких принтеров если один принтер не доступен!
 for printer_q in $lpstat_check; do
     printer_name=$(echo "$printer_q" | awk '{print $3}' | sed 's/:$//')
     printer_address=$(echo "$printer_q" | awk '{print $4}')
