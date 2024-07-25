@@ -6,6 +6,12 @@ exec 2> /dev/null
 user1=$(who | grep '(:0)' | cut -d " " -f1)
 dir1=$(ls /home/$user1/.wine/drive_c/users/$user1/| wc -l)
 
+# Определение функции переустановки бутылки в skel
+extract_wine_bottle() {
+    rm -rf /etc/skel/.wine
+    tar -C /etc/skel/ -xf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+}
+
 #Удаляем неудачные бекапы
 if [ ! -f "/.*[0-9]*" ]; then
 	rm -rf /.*[0-9]*
@@ -37,22 +43,25 @@ chek_ether_bottle2=$(md5sum /root/etersoft-repo/wine_bottle_8.0.6.tar.gz | awk '
 
 # Проверяем md5sum бутылки, в случае несоотвествия переустанавливаем бутылку в skel.
 if [ ! "$chek_ether_bottle" = "$chek_ether_bottle2" ]; then
-	cd /root/etersoft-repo
-	rm -f wine_bottle_8.0.6.tar.gz
-	env -i wget http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
-	cd /etc/skel/
-	rm -rf .wine
-	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	rm -f /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	env -i wget -P /root/etersoft-repo/ http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
+	extract_wine_bottle
 	result_message_md5="md5sum wine_bottle_8.0.6.tar.gz не верна."
 fi 
 
-#Добавить проверку wrapper, если гис в скелетоне остался старый
+#Проверка wrapper, если гис в скелетоне остался старый
 if [ ! -f "/etc/skel/.wine/wrapper.cfg" ]; then
-	rm -rf /etc/skel/.wine/
-	cd /etc/skel/
-	tar -xvf /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	extract_wine_bottle
 	result_message_wr="Бутылка с 4.9 заменена."
 fi
+
+# Чек прав на папку .wine в skel
+stat_check=$(stat -c %u /etc/skel/.wine)
+if [ "$stat_check" = 0 ]; then
+	extract_wine_bottle
+	result_message_stat="Исправлены права в skel на wine."
+fi
+
 
 if [ ! -f "/usr/bin/prepare_bottle.sh" ]; then
 	cat << '_EOF_' > /usr/bin/prepare_bottle.sh
@@ -139,6 +148,7 @@ echo "$result_message_root_size"
 echo "$result_message1"
 echo "$result_message_bak"
 echo "$result_message_wr"
+echo "$result_message_stat"
 echo "$result_message_pr"
 echo "$zastava_check"
 echo "$result_message_md5"
