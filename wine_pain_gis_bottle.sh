@@ -1,7 +1,7 @@
 #!/bin/bash
 LANG=C
 
-exec 2> /dev/null
+#exec 2> /dev/null
 
 user1=$(who | grep '(:0)' | cut -d " " -f1)
 dir1=$(ls /home/$user1/.wine/drive_c/users/$user1/| wc -l)
@@ -74,21 +74,16 @@ _EOF_
 fi	
 
 #Проверка фсс-aids-spectator приблуд?
-check2=/home/$user1/.wine/drive_c/AIDSNET59
-check3=/home/$user1/.wine/drive_c/spectator
-check4=/home/$user1/.wine/drive_c/FssArmErs
-check5=/home/$user1/.wine/drive_c/FssTools
-check6=/home/$user1/.wine/drive_c/Radiant
 check_wsp=/home/$user1/.wine.special
 
 #Бекап старой бутылки и переустановка её
 result_message1=""
 
-if [ -d $check2 ] || [ -d $check3 ] || [ -d $check4 ] || [ -d $check5 ] || [ -d $check6 ]; then
+if [[  $(ls /home/$user1/.wine/drive_c | wc -l) > 5 ]]; then
   if [ -d $check_wsp ]; then
     i=1
     while [ -d $check_wsp$i ]; do
-      i=$((i+1))
+      i=$((i++))
     done
     result_message1="n-копия чего-то там"
     su - "$user1" -c "wineserver -k; sleep 3; mv .wine .wine.special$i; cp -r /etc/skel/.wine ."
@@ -111,9 +106,10 @@ fi
 trash1=$(/home/$user1/*.lnk)
 trash2=$(/home/$user1/Документы/*.lnk)
 
-if [ -f $trash1 -o -f $trash2  ]; then
-	su - '$user1' -c "mv /home/$user1/*.lnk /tmp/"
-	su - '$user1' -c "mv /home/$user1/Документы/*.lnk /tmp/"
+# не сработал !
+if [ -f $trash1 ] || [ -f $trash2 ]; then
+	su - '$user1' -c "rm /home/$user1/*.lnk"
+	su - '$user1' -c "rm /home/$user1/Документы/*.lnk"
 fi
 
 #Проверка пользовательской папки user на необходимые для запуска ГИСа файлы		

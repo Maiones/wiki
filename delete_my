@@ -1,0 +1,6 @@
+#/bin/bash
+
+systemctl stop salt-minion
+rm -rfv /etc/salt/pki/minion/*
+echo > /etc/salt/minion_id
+sed 's/^HOSTNAME=.*/HOSTNAME=localhost.localdomain/' -i /etc/sysconfig/network

@@ -4,9 +4,7 @@ test_p="/tmp/failed_ping_zastava_gates.txt"
 echo "" > $test_p
 
 HOSTS="
-10.193.28.151
-10.224.78.242
-10.193.31.16
+
 "
 for i in $HOSTS
 do

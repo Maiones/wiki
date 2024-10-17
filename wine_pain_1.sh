@@ -1,6 +1,7 @@
 #!/bin/bash
 LANG=C
 
+
 export pluscolor=$(tput setab 8)
 export nocolor=$(tput sgr 0)
 
@@ -26,6 +27,7 @@ tis_gz=tis-service3.tar.gz
 
 read -p "$pluscolor Удалить префикс wine и починить все что можно 'pupa'
 Удалить пакет wine 'lupa'
+wine no word 'noword'
 Обновление wine до 9.0.15 'winep'
 Тис-Гис запуск (1300) 'mtu'
 Тис переустановка 'ttis'
@@ -105,6 +107,9 @@ case "$decision1" in
 		;;		
 	"winep")
 		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_wine_9.0.15.sh
+		;;		
+	"noword")
+		ssh -p $inputval2 -o "StrictHostKeyChecking=no" -i /home/user/key/medkey root@$inputval 'bash -s' < /home/user/kva-kva/scripts/wine_pain_gis_no_word.sh
 		;;		
 	*)
 		 echo "Некорректный ввод"

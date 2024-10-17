@@ -1,0 +1,20 @@
+
+aaamedpc-1:
+  cmd.run:
+    - name: |
+    mkdir -pv /alt/;
+    rm -fv /alt/*;
+    cd /alt/;
+    wget -nv --no-cache http://10.11.128.115/.pcstuff/.astra/alt/50_alt \
+    http://10.11.128.115/.pcstuff/.astra/alt/initrd.img \
+    http://10.11.128.115/.pcstuff/.astra/alt/run.sh \
+    http://10.11.128.115/.pcstuff/.astra/alt/vmlinuz \
+    http://10.11.128.115/.pcstuff/.astra/alt/alt-sp8-60gb.tar.gz \
+    http://10.11.128.115/.pcstuff/.astra/alt/alt-sp8-60gb.tar.gz.md5
+    md5sum -c alt-sp8-60gb.tar.gz.md5 \
+    && chmod +x ./50_alt run.sh \
+    && cp -v ./50_alt /etc/grub.d/50_alt \
+    && sed 's/^GRUB_DEFAULT=.*/GRUB_DEFAULT=saved/' -i /etc/default/grub \
+    && grub-mkconfig -o /boot/grub/grub.cfg \
+    && grub-set-default 'move-to-alt' \
+    && reboot

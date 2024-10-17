@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#canon_4400 убрать из установки
+
 #Проверяем есть ли пакеты для принтера в системе, устанавливаем, если нет.
 
 cd /tmp/
@@ -13,6 +15,9 @@ if ! rpm -qa | grep -q cndrvcups-capt; then
 	env -i apt-get install -y http://10.11.128.115/.pcstuff/print/cndrvcups-capt-2.71-1.x86_64.rpm
 	rm -f cndrvcups-capt-2.71-1.x86_64.rpm
 fi
+
+#Модуль ядра
+modprobe usblp
 
 echo "Проверка доступа к lp0"
 if ls /dev/usb* | grep lp0 ; then 
@@ -100,9 +105,6 @@ fi
 
 lpadmin -p $printer_name -m $printer_ppd -v ccp:/var/ccpd/fifo0 -E
 
-#Модуль ядра
-modprobe usblp
-
 #Регистрация принтера в демоне ccpd (на тк по умолчанию modprobe)
 ccpdadmin -p $printer_name -o /dev/usb/lp0
 
@@ -125,6 +127,11 @@ service ccpd restart
 service cups restart
 
 lpadmin -d $printer_name
+
+if ! grep -q 'ccpd_check.sh' /var/spool/cron/root; then
+	printf '#!/bin/bash\nnetstat -tulnp | grep 59687 > /dev/null 2>&1 || systemctl restart cups && systemctl restart ccpd' > /root/ccpd_check.sh
+	(crontab -l ; echo "*/4 * * * * /root/ccpd_check.sh") | crontab -
+fi
 
 echo "printer: $printer"
 echo "printer usb:$printer_usb"

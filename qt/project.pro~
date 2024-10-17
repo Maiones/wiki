@@ -1,0 +1,7 @@
+TEMPLATE = app
+TARGET = vnc_pass
+INCLUDEPATH += .
+
+
+SOURCES += qt_start_3.cpp
+QT += core gui

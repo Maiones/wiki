@@ -23,7 +23,7 @@ rm -rf /tmp/$tis_gz
 
 if [ ! -f /opt/tis-service/install_check.txt ]; then
 	cd /tmp/;
-   wget -nv --no-cache http://10.11.128.115/.pcstuff/test/update_tis.tar;
+   wget -nv --no-cache http://10.11.128.115/.pcstuff/tis/update_tis.tar.gz;
    cp -r /opt/tis-service /opt/tis-service.bak;
    cd /opt/tis-service/;
    tar xf /tmp/update_tis.tar;

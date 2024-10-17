@@ -1,0 +1,66 @@
+#include <QApplication>
+#include <QPushButton>
+#include <QProcess>
+#include <QMessageBox>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QLabel>
+
+class MainWindow : public QWidget {
+    Q_OBJECT
+
+public:
+    MainWindow() {
+        // Устанавливаем название окна
+        setWindowTitle("Command Output");
+
+        // Создаем кнопку и метку для вывода текста
+        button = new QPushButton("Click to run command", this);
+        label = new QLabel("Output will appear here", this);
+
+        // Создаем вертикальный layout
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(button);
+        layout->addWidget(label);
+        setLayout(layout);
+        resize(400, 200);
+
+        // Подключаем клик по кнопке к слоту
+        connect(button, SIGNAL(clicked()), this, SLOT(runCommand()));
+    }
+
+public slots:
+    void runCommand() {
+        QProcess process;
+        // Запускаем команду
+        process.start("bash", QStringList() << "-c" << "rpm -qa | grep -i thunar | awk 'NR==2'");
+        process.waitForFinished(-1);
+
+        // Получаем результат выполнения команды
+        QString output = process.readAllStandardOutput();
+        QString error = process.readAllStandardError();
+
+        // Проверяем ошибки и выводим результат
+        if (!error.isEmpty()) {
+            label->setText("Error: " + error);
+        } else if (output.isEmpty()) {
+            label->setText("No output from the command.");
+        } else {
+            label->setText("Command Output: " + output);
+        }
+    }
+
+private:
+    QPushButton *button;
+    QLabel *label;
+};
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+
+    MainWindow window;
+    window.show();
+
+    return app.exec();
+}
+
