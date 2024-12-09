@@ -32,7 +32,7 @@ user1=$(who | grep '(:0)' | cut -d " " -f1)
 mkdir /opt/certs
 chmod 777 /opt/certs
 cd /tmp/ 
-wget -nv --no-cache http://lk.fss.ru/sfr_certs_2023/cert.cer
+env -i wget -nv --no-cache http://lk.fss.ru/sfr_certs_2023/cert.cer
 
 
 if rpm -qa | grep -q postgresql9.4 ; then 
@@ -83,13 +83,13 @@ read inputval3
 
 if test "$inputval3" == "eln"
 then
-		cd /tmp/; wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_enl_null.sql	
+		cd /tmp/; env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_enl_null.sql	
 		psql -p 5433 -U postgres -d "fss" -f /tmp/backup_enl_null.sql
 		psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";" 
 
 elif test "$inputval3" == "ers"
 	then
-		cd /tmp/; wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_ers_empty.sql	
+		cd /tmp/; env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/test/backup_ers_empty.sql	
 		psql -p 5433 -U postgres -d "fss" -f /tmp/backup_ers_empty.sql
 		psql -p 5433 -U postgres -c "ALTER DATABASE "fss" OWNER TO "fss";"
 
@@ -132,10 +132,10 @@ echo -en "$color2b Выберите номер программы: ФСС ЭРС
 read inputval5
 
 if [ "$inputval5" == "1" ]; then
-    su - ${user1} -c "cd /home/'$user1'/ && wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.ers.tar.gz"
+    su - ${user1} -c "cd /home/'$user1'/ && env -i wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.ers.tar.gz"
     su - ${user1} -c "tar -xf wine.fss.ers.tar.gz"
 elif [ "$inputval5" == "2" ]; then
-    su - ${user1} -c "cd /home/'$user1'/ && wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.eln.tar.gz"
+    su - ${user1} -c "cd /home/'$user1'/ && env -i wget --progress=bar:force --no-cache http://10.11.128.115/.pcstuff/test/fss/wine.fss.eln.tar.gz"
     su - ${user1} -c "tar -xf wine.fss.eln.tar.gz"
 fi
 
