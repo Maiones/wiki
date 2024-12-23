@@ -35,6 +35,10 @@ fi
 #Проверка битых пакетов
 ldconfig 2>&1| awk '{print $3}' | env -i   xargs -- apt-get install -y --reinstall
 
+##Блокируем запуск на время выполнения скрипта /usr/bin/run_vita.sh
+chmod -x /usr/bin/run_vita.sh
+
+
 # Проверяем бутылку и версию wine 
 check8=$(wine --version | cut -d " " -f1)
 check9=/root/etersoft-repo/wine_bottle_8.0.6.tar.gz
@@ -42,11 +46,15 @@ chek_ether_bottle=ef4c17eee3764500fc9200602cea9f66
 chek_ether_bottle2=$(md5sum /root/etersoft-repo/wine_bottle_8.0.6.tar.gz | awk '{print $1}')
 
 # Проверяем md5sum бутылки, в случае несоотвествия переустанавливаем бутылку в skel.
-if [ ! "$chek_ether_bottle" = "$chek_ether_bottle2" ]; then
-	rm -f /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
-	env -i wget -P /root/etersoft-repo/ http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
-	extract_wine_bottle
-	result_message_md5="md5sum wine_bottle_8.0.6.tar.gz не верна."
+if test -d /root/etersoft-repo/ ; then
+    if [ ! "$chek_ether_bottle" = "$chek_ether_bottle2" ]; then
+	    rm -f /root/etersoft-repo/wine_bottle_8.0.6.tar.gz
+	    env -i wget -P /root/etersoft-repo/ http://10.11.128.115/.pcstuff/wine/wine_etersoft_repo_8.0.6/wine_bottle_8.0.6.tar.gz
+	    extract_wine_bottle
+	    result_message_md5="md5sum wine_bottle_8.0.6.tar.gz не верна."
+	  fi
+  else
+    result_message_md5_2="/root/etersoft-repo отсуствует"   
 fi 
 
 #Проверка wrapper, если гис в скелетоне остался старый
@@ -123,6 +131,12 @@ fi
 sed -i "5c\Exec=/usr/bin/run_vita.sh" /etc/skel/Рабочий\ стол/as_rmiac.desktop
 sed -i "s|<\wine\>|wine_noproxy.sh|g" /etc/skel/Рабочий\ стол/AIS_LPU_RDS.desktop
 
+##Разблокируем запуск /usr/bin/run_vita.sh
+chmod +x /usr/bin/run_vita.sh
+
+#разрешение wine
+chmod 0755 /usr/bin/wine
+
 #Обновляемся из salt 
 ####Вывести проверку доступности
 salt1=$(systemctl is-active salt-minion >/dev/null 2>&1 && echo YES || echo NO)
@@ -131,9 +145,6 @@ if [ $salt1 == NO ]; then
 	systemctl restart salt-minion
 	echo $salt1
 fi
-
-#разрешение wine
-chmod 0755 /usr/bin/wine
 
 #Проверка mtu и заставы
 #grep -E 'inet [0-9]+\.' | grep 10.* | awk '{print $2}'
@@ -148,6 +159,7 @@ echo "$result_message_stat"
 echo "$result_message_pr"
 echo "$zastava_check"
 echo "$result_message_md5"
+echo "$result_message_md5_2"
 
 
 
