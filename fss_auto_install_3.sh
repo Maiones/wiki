@@ -156,13 +156,16 @@ _EOF_
 
 chmod 755 /usr/bin/run_fss.sh
 
+wget -nv --no-cache http://10.11.128.115/.pcstuff/gui/icons/fsslogo.ico
+mv fsslogo.ico /etc/med/desktop/icons/
+
 cat << '_EOF_' >  /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 [Desktop Entry]
 Version=1.0
 Type=Application
 Name=АРМ ЛПУ
 Exec=/usr/bin/run_fss.sh
-Icon=5CB0_fsslogo.0
+Icon=/etc/med/desktop/icons/fsslogo.ico
 StartupNotify=true
 Path=/usr/bin/
 _EOF_
@@ -172,11 +175,12 @@ chmod +x /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
 
 #########################################################
 
-rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ"
-rm -rf "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ(ЭРС)"
-rm -rf /home/$user1/.local/share/applications/wine/Programs/wine-Programs-СФР*
-rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop
-rm -rf /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ(ЭРС\).desktop
+rm -f "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ"
+rm -f "/home/'$user1'/.local/share/applications/wine/Programs/СФР АРМ ЛПУ(ЭРС)"
+rm -f /home/$user1/.local/share/applications/wine/Programs/wine-Programs-СФР*
+rm -f /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ.desktop
+#rm -f /home/$user1/Рабочий\ стол/СФР\ АРМ\ ЛПУ(ЭРС\).desktop
+rm -f /home/$user1/wine.fss.*.tar.gz
 
 echo -en "ФСС Установлено!"
 
