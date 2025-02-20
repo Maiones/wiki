@@ -156,7 +156,7 @@ _EOF_
 
 chmod 755 /usr/bin/run_fss.sh
 
-wget -nv --no-cache http://10.11.128.115/.pcstuff/gui/icons/fsslogo.ico
+env -i wget -nv --no-cache http://10.11.128.115/.pcstuff/gui/icons/fsslogo.ico
 mv fsslogo.ico /etc/med/desktop/icons/
 
 cat << '_EOF_' >  /home/$user1/Рабочий\ стол/АРМ\ ЛПУ.desktop
